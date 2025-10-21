@@ -9,11 +9,10 @@ from django.contrib.auth import logout
 from rest_framework.decorators import action
 from .serializers import *
 
-
-class MessagePagination(PageNumberPagination):
+class ModelPagination(PageNumberPagination):
     page_size = 5
     page_query_param = 'page'
-
+    
 class MessageViewSet(viewsets.ViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
@@ -21,7 +20,7 @@ class MessageViewSet(viewsets.ViewSet):
     
     def list(self, request):
         messages = Message.objects.filter(sender=request.user).order_by('timestamp')
-        paginator = MessagePagination()
+        paginator = ModelPagination()
         page = paginator.paginate_queryset(messages, request)
         serializer = self.serializer_class(page, many=True)
         return paginator.get_paginated_response({
@@ -79,10 +78,6 @@ class MessageViewSet(viewsets.ViewSet):
         return Response({
             "message": f"Deleted conversation ({name})"
         }, status=status.HTTP_204_NO_CONTENT)
-    
-class ConversationPagination(PageNumberPagination):
-    page_size = 5
-    page_query_param = 'page'
 
 class ConversationViewSet(viewsets.ViewSet):
     serializer_class = ConversationSerializer
@@ -92,7 +87,7 @@ class ConversationViewSet(viewsets.ViewSet):
     
     def list(self, request):
         queryset = Conversation.objects.filter(participants=request.user).order_by('-created_at')
-        paginator = ConversationPagination()
+        paginator = ModelPagination()
         page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(page, many=True)
         return paginator.get_paginated_response({
@@ -137,10 +132,6 @@ class ConversationViewSet(viewsets.ViewSet):
         return Response({
             "message": f"Deleted conversation ({name})"
         }, status=status.HTTP_204_NO_CONTENT)
-
-class UserPagination(PageNumberPagination):
-    page_size = 5
-    page_query_param = 'page'
     
 class UserViewSet(viewsets.ViewSet):
     serialization_class = UserProfileSerializer
@@ -169,7 +160,7 @@ class UserViewSet(viewsets.ViewSet):
         
     def list(self,request):
         queryset = UserProfile.objects.filter(is_active=True)
-        paginator = UserPagination()
+        paginator = ModelPagination()
         page = paginator.paginate_queryset(queryset, request)
         serializer = UserProfileSerializer(page, many=True)
         return Response({
