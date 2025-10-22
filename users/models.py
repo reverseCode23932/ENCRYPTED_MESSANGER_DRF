@@ -48,12 +48,9 @@ class Conversation(models.Model):
         super().save(*args, **kwargs)
         
         if self.participants.count() <= 2:
-            name = "Conversation"
+            self.name = ''.join([user.username for user in self.participants.all()])
         else:
-            name = "Group"
-        
-        if self.name != name:
-            self.name = name
+            self.add_to_name = "Group"
             super().save(update_fields=['name'])
 
     def __str__(self) -> str:
